@@ -23,56 +23,62 @@ function mapKeywordToCountry(keyword) {
 
 app.get("/trends", async (req, res) => {
   try {
-    const result = await googleTrends.realTimeTrends({
-      geo: "US",
-      category: "all",
-    });
-
-    const data = JSON.parse(result);
-    const stories = data.storySummaries.trendingStories;
-
-    const countryScores = {};
-
-    stories.forEach(story => {
-      const title = story.title;
-
-      const country = mapKeywordToCountry(title);
-      if (!country) return;
-
-      countryScores[country] = (countryScores[country] || 0) + 10;
-    });
-
-    const formatted = Object.entries(countryScores).map(([country, score]) => ({
-      country,
-      score
-    }));
-
-    if (formatted.length === 0) throw new Error("No mapped countries");
-
-    res.json(formatted);
-
-  } catch (err) {
-    console.log("⚠️ Using fallback data");
-
     const countries = [
-      "China",
-      "India",
-      "United States",
-      "Mexico",
-      "Brazil",
-      "Germany",
-      "France",
-      "Japan",
-      "Canada",
-      "Australia"
+      { name: "United States", geo: "US" },
+      { name: "Mexico", geo: "MX" },
+      { name: "Brazil", geo: "BR" },
+      { name: "Germany", geo: "DE" },
+      { name: "India", geo: "IN" },
+      { name: "France", geo: "FR" },
+      { name: "Japan", geo: "JP" },
+      { name: "Canada", geo: "CA" },
+      { name: "Australia", geo: "AU" },
+      { name: "China", geo: "CN" }
     ];
 
-    const fallback = countries.map((c) => ({
-      country: c,
-      score: 60 + Math.floor(Math.random() * 40)
-    }));
+    // 🧠 AI KEYWORDS (core of your product)
+    const keywords = ["AI", "ChatGPT", "OpenAI", "Machine Learning"];
 
-    res.json(fallback);
+    const results = await Promise.all(
+      countries.map(async (c) => {
+        try {
+          const data = await googleTrends.interestOverTime({
+            keyword: keywords,
+            geo: c.geo,
+            timeframe: "now 7-d"
+          });
+
+          const parsed = JSON.parse(data);
+          const values = parsed.default.timelineData;
+
+          if (!values.length) {
+            return { country: c.name, score: 0 };
+          }
+
+          // 📊 Average interest across time
+          const avg =
+            values.reduce((sum, v) => {
+              const total = v.value.reduce((a, b) => a + b, 0);
+              return sum + total;
+            }, 0) / values.length;
+
+          return {
+            country: c.name,
+            score: Math.round(avg)
+          };
+
+        } catch (err) {
+          console.log(`Error with ${c.name}`);
+          return { country: c.name, score: 0 };
+        }
+      })
+    );
+
+    res.json(results);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch trends" });
   }
 });
 
