@@ -2,25 +2,6 @@ import express from "express";
 import cors from "cors";
 import googleTrends from "google-trends-api";
 
-const app = express();
-app.use(cors());
-
-// 🌍 helper
-function mapKeywordToCountry(keyword) {
-  keyword = keyword.toLowerCase();
-
-  if (keyword.includes("india")) return "India";
-  if (keyword.includes("china")) return "China";
-  if (keyword.includes("usa") || keyword.includes("america")) return "United States";
-  if (keyword.includes("mexico")) return "Mexico";
-  if (keyword.includes("brazil")) return "Brazil";
-  if (keyword.includes("germany")) return "Germany";
-  if (keyword.includes("france")) return "France";
-  if (keyword.includes("japan")) return "Japan";
-
-  return null;
-}
-
 app.get("/trends", async (req, res) => {
   try {
     const countries = [
@@ -28,20 +9,15 @@ app.get("/trends", async (req, res) => {
       { name: "Mexico", geo: "MX" },
       { name: "Brazil", geo: "BR" },
       { name: "Germany", geo: "DE" },
-      { name: "India", geo: "IN" },
-      { name: "France", geo: "FR" },
-      { name: "Japan", geo: "JP" },
-      { name: "Canada", geo: "CA" },
-      { name: "Australia", geo: "AU" },
-      { name: "China", geo: "CN" }
+      { name: "India", geo: "IN" }
     ];
 
-    // 🧠 AI KEYWORDS (core of your product)
     const keywords = ["AI", "ChatGPT", "OpenAI", "Machine Learning"];
 
     const results = await Promise.all(
       countries.map(async (c) => {
         try {
+          // 📊 Interest score (same as before)
           const data = await googleTrends.interestOverTime({
             keyword: keywords,
             geo: c.geo,
@@ -51,25 +27,40 @@ app.get("/trends", async (req, res) => {
           const parsed = JSON.parse(data);
           const values = parsed.default.timelineData;
 
-          if (!values.length) {
-            return { country: c.name, score: 0 };
-          }
-
-          // 📊 Average interest across time
           const avg =
             values.reduce((sum, v) => {
               const total = v.value.reduce((a, b) => a + b, 0);
               return sum + total;
             }, 0) / values.length;
 
+          // 🔥 NEW: trending searches
+          const daily = await googleTrends.dailyTrends({
+            geo: c.geo
+          });
+
+          const parsedDaily = JSON.parse(daily);
+
+          const searches =
+            parsedDaily.default.trendingSearchesDays?.[0]
+              ?.trendingSearches || [];
+
+          const topKeywords = searches
+            .slice(0, 3)
+            .map((s) => s.title.query);
+
           return {
             country: c.name,
-            score: Math.round(avg)
+            score: Math.round(avg),
+            keywords: topKeywords
           };
 
         } catch (err) {
           console.log(`Error with ${c.name}`);
-          return { country: c.name, score: 0 };
+          return {
+            country: c.name,
+            score: 0,
+            keywords: []
+          };
         }
       })
     );
