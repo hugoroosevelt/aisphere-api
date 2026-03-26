@@ -7,15 +7,14 @@ app.use(cors());
 
 /* 👇 ADD IT HERE */
 app.get("/", (req, res) => {
-  res.send("🚀 AI Sphere API is running");
+ res.send("🔥 NEW SERVER VERSION ACTIVE 🔥");
 });
 
 /* 👇 Your existing route */
-app.get("/trends", async (req, res) => {
-  // your code...
-});
 
 app.get("/trends", async (req, res) => {
+  console.log("🔥 NEW VERSION WITH KEYWORDS RUNNING");
+
   try {
     const countries = [
       { name: "United States", geo: "US" },
