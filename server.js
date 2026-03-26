@@ -170,8 +170,8 @@ for (let i = 0; i < countries.length; i++) {
               .map((s) => s.title.query);
 
           } catch (err) {
-            console.log(`⚠️ No keywords for ${c.name}`);
-          }
+  console.log("Daily trends failed for", c.name);
+}
 
           // ✅ FINAL SAFE FALLBACK
           if (!topKeywords || topKeywords.length === 0) {
