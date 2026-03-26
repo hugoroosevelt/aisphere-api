@@ -81,7 +81,7 @@ try {
           return {
   country: c.name,
   score: 0,
-  keywords: ["AI", "Technology"]
+  keywords: topKeywords
 };
 
         } catch (err) {
@@ -89,7 +89,7 @@ try {
           return {
             country: c.name,
             score: 0,
-            keywords: ["AI", "ChatGPT", "Artificial Intelligence"]
+            keywords: topKeywords
           };
         }
       })
