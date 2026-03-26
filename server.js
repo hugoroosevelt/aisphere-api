@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import googleTrends from "google-trends-api";
 
+const app = express();
+app.use(cors());
+
 app.get("/trends", async (req, res) => {
   try {
     const countries = [
@@ -34,19 +37,29 @@ app.get("/trends", async (req, res) => {
             }, 0) / values.length;
 
           // 🔥 NEW: trending searches
-          const daily = await googleTrends.dailyTrends({
-            geo: c.geo
-          });
+          let topKeywords = [];
 
-          const parsedDaily = JSON.parse(daily);
+try {
+  const daily = await googleTrends.dailyTrends({
+    geo: c.geo
+  });
 
-          const searches =
-            parsedDaily.default.trendingSearchesDays?.[0]
-              ?.trendingSearches || [];
+  const parsedDaily = JSON.parse(daily);
 
-          const topKeywords = searches
-            .slice(0, 3)
-            .map((s) => s.title.query);
+  const searches =
+    parsedDaily.default.trendingSearchesDays?.[0]
+      ?.trendingSearches || [];
+
+  topKeywords = searches
+    .slice(0, 3)
+    .map((s) => s.title.query);
+
+} catch (err) {
+  console.log(`⚠️ No keywords for ${c.name}`);
+
+  // 🔥 fallback so UI always shows something
+  topKeywords = ["AI", "ChatGPT", "OpenAI"];
+}
 
           return {
             country: c.name,
@@ -64,7 +77,7 @@ app.get("/trends", async (req, res) => {
         }
       })
     );
-
+    console.log("🔥 KEYWORDS ACTIVE", results[0]);
     res.json(results);
 
   } catch (err) {
