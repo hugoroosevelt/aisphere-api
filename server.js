@@ -5,6 +5,16 @@ import googleTrends from "google-trends-api";
 const app = express();
 app.use(cors());
 
+/* 👇 ADD IT HERE */
+app.get("/", (req, res) => {
+  res.send("🚀 AI Sphere API is running");
+});
+
+/* 👇 Your existing route */
+app.get("/trends", async (req, res) => {
+  // your code...
+});
+
 app.get("/trends", async (req, res) => {
   try {
     const countries = [
