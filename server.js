@@ -75,8 +75,62 @@ const countries = [
   { name: "Nigeria", geo: "NG" },
   { name: "Singapore", geo: "SG" }
 ];
-    const results = await Promise.all(
-      countries.map(async (c, i) => {
+    const results = [];
+
+for (let i = 0; i < countries.length; i++) {
+  const c = countries[i];
+
+  await new Promise(r => setTimeout(r, 300));
+
+  try {
+    const data = await googleTrends.interestOverTime({
+      keyword: keywords,
+      geo: c.geo,
+      timeframe: "now 7-d"
+    });
+
+    const parsed = JSON.parse(data);
+    const values = parsed.default.timelineData;
+
+    const avg =
+      values.length > 0
+        ? values.reduce((sum, v) => {
+            const total = v.value.reduce((a, b) => a + b, 0);
+            return sum + total;
+          }, 0) / values.length
+        : 10;
+
+    let topKeywords = [];
+
+    try {
+      const daily = await googleTrends.dailyTrends({ geo: c.geo });
+      const parsedDaily = JSON.parse(daily);
+
+      const searches =
+        parsedDaily.default.trendingSearchesDays?.[0]
+          ?.trendingSearches || [];
+
+      topKeywords = searches.slice(0, 3).map(s => s.title.query);
+    } catch {}
+
+    if (!topKeywords.length) {
+      topKeywords = ["AI", "ChatGPT", "Artificial Intelligence"];
+    }
+
+    results.push({
+      country: c.name,
+      score: Math.round(avg) || 10,
+      keywords: topKeywords
+    });
+
+  } catch (err) {
+    results.push({
+      country: c.name,
+      score: 10,
+      keywords: ["AI", "ChatGPT", "Artificial Intelligence"]
+    });
+  }
+}
   await new Promise(r => setTimeout(r, i * 300)); // throttle
         try {
           // 📊 Interest score
