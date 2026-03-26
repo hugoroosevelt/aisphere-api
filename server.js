@@ -14,17 +14,41 @@ app.get("/trends", async (req, res) => {
 
   try {
     const countries = [
-      { name: "United States", geo: "US" },
-      { name: "Mexico", geo: "MX" },
-      { name: "Brazil", geo: "BR" },
-      { name: "Germany", geo: "DE" },
-      { name: "India", geo: "IN" }
-    ];
+  { name: "United States", geo: "US" },
+  { name: "China", geo: "CN" },
+  { name: "India", geo: "IN" },
+  { name: "Germany", geo: "DE" },
+  { name: "United Kingdom", geo: "GB" },
+  { name: "France", geo: "FR" },
+  { name: "Japan", geo: "JP" },
+  { name: "South Korea", geo: "KR" },
+  { name: "Canada", geo: "CA" },
+  { name: "Australia", geo: "AU" },
+
+  { name: "Mexico", geo: "MX" },
+  { name: "Brazil", geo: "BR" },
+  { name: "Argentina", geo: "AR" },
+  { name: "Chile", geo: "CL" },
+  { name: "Colombia", geo: "CO" },
+
+  { name: "Spain", geo: "ES" },
+  { name: "Italy", geo: "IT" },
+  { name: "Netherlands", geo: "NL" },
+  { name: "Sweden", geo: "SE" },
+  { name: "Switzerland", geo: "CH" },
+
+  { name: "United Arab Emirates", geo: "AE" },
+  { name: "Saudi Arabia", geo: "SA" },
+  { name: "South Africa", geo: "ZA" },
+  { name: "Nigeria", geo: "NG" },
+  { name: "Singapore", geo: "SG" }
+];
 
     const keywords = ["AI", "ChatGPT", "OpenAI", "Machine Learning"];
 
     const results = await Promise.all(
-      countries.map(async (c) => {
+      countries.map(async (c, i) => {
+  await new Promise(r => setTimeout(r, i * 100)); // throttle
         try {
           // 📊 Interest score
           const data = await googleTrends.interestOverTime({
