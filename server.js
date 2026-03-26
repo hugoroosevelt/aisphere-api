@@ -67,7 +67,7 @@ try {
   console.log(`⚠️ No keywords for ${c.name}`);
 
   // 🔥 fallback so UI always shows something
-  topKeywords = ["AI", "ChatGPT", "OpenAI"];
+  topKeywords = [];
 }
 
           return {
