@@ -10,41 +10,47 @@ app.get("/", (req, res) => {
 });
 
 app.get("/trends", async (req, res) => {
-  const countries = [
-    "United States","China","India","Germany","United Kingdom",
-    "France","Japan","South Korea","Canada","Australia",
-    "Mexico","Brazil","Argentina","Chile","Colombia",
-    "Spain","Italy","Netherlands","Sweden","Switzerland",
-    "United Arab Emirates","Saudi Arabia","South Africa","Nigeria","Singapore"
-  ];
+  try {
+    const countries = [
+      "United States","China","India","Germany","United Kingdom",
+      "France","Japan","South Korea","Canada","Australia",
+      "Mexico","Brazil","Argentina","Chile","Colombia",
+      "Spain","Italy","Netherlands","Sweden","Switzerland",
+      "United Arab Emirates","Saudi Arabia","South Africa","Nigeria","Singapore"
+    ];
 
-  const keywordPool = [
-    "AI","ChatGPT","OpenAI","Machine Learning",
-    "DeepSeek","Grok","Perplexity","LLMs","Automation","Agents"
-  ];
+    const keywordPool = [
+      "AI","ChatGPT","OpenAI","Machine Learning",
+      "DeepSeek","Grok","Perplexity","LLMs","Automation","Agents"
+    ];
 
-  const results = countries.map((country) => {
-    
-    // 🔹 Base score (stable per country)
-    const base = 50 + Math.random() * 30;
+    const results = countries.map((country) => {
 
-    // 🔹 Pulse (movement)
-    const pulse = Math.random() * 20;
+      const base = 50 + Math.random() * 30;
+      const pulse = Math.random() * 20;
 
-    // 🔹 Final score
-    const score = Math.round(base + pulse);
+      const score = Math.round(base + pulse);
 
-    // 🔹 Random keywords (simulate trends)
-    const keywords = Array.from({ length: 3 }, () =>
-      keywordPool[Math.floor(Math.random() * keywordPool.length)]
-    );
+      const keywords = Array.from({ length: 3 }, () =>
+        keywordPool[Math.floor(Math.random() * keywordPool.length)]
+      );
 
-    return {
-      country,
-      score,
-      keywords
-    };
-  });
+      return {
+        country,
+        score,
+        keywords
+      };
+    });
+
+    const sorted = results.sort((a, b) => b.score - a.score);
+
+    res.json(sorted);
+
+  } catch (err) {
+    console.error("SERVER ERROR:", err);
+    res.status(500).json({ error: "Failed to generate trends" });
+  }
+});
 
   // 🔥 Sort globally
   const sorted = results.sort((a, b) => b.score - a.score);
