@@ -10,39 +10,47 @@ app.get("/", (req, res) => {
 });
 
 app.get("/trends", async (req, res) => {
-  console.log("🔥 NEW VERSION WITH KEYWORDS RUNNING");
+  const countries = [
+    "United States","China","India","Germany","United Kingdom",
+    "France","Japan","South Korea","Canada","Australia",
+    "Mexico","Brazil","Argentina","Chile","Colombia",
+    "Spain","Italy","Netherlands","Sweden","Switzerland",
+    "United Arab Emirates","Saudi Arabia","South Africa","Nigeria","Singapore"
+  ];
 
-  try {
-    const countries = [
-      { name: "United States", geo: "US" },
-      { name: "China", geo: "CN" },
-      { name: "India", geo: "IN" },
-      { name: "Germany", geo: "DE" },
-      { name: "United Kingdom", geo: "GB" },
-      { name: "France", geo: "FR" },
-      { name: "Japan", geo: "JP" },
-      { name: "South Korea", geo: "KR" },
-      { name: "Canada", geo: "CA" },
-      { name: "Australia", geo: "AU" },
+  const keywordPool = [
+    "AI","ChatGPT","OpenAI","Machine Learning",
+    "DeepSeek","Grok","Perplexity","LLMs","Automation","Agents"
+  ];
 
-      { name: "Mexico", geo: "MX" },
-      { name: "Brazil", geo: "BR" },
-      { name: "Argentina", geo: "AR" },
-      { name: "Chile", geo: "CL" },
-      { name: "Colombia", geo: "CO" },
+  const results = countries.map((country) => {
+    
+    // 🔹 Base score (stable per country)
+    const base = 50 + Math.random() * 30;
 
-      { name: "Spain", geo: "ES" },
-      { name: "Italy", geo: "IT" },
-      { name: "Netherlands", geo: "NL" },
-      { name: "Sweden", geo: "SE" },
-      { name: "Switzerland", geo: "CH" },
+    // 🔹 Pulse (movement)
+    const pulse = Math.random() * 20;
 
-      { name: "United Arab Emirates", geo: "AE" },
-      { name: "Saudi Arabia", geo: "SA" },
-      { name: "South Africa", geo: "ZA" },
-      { name: "Nigeria", geo: "NG" },
-      { name: "Singapore", geo: "SG" }
-    ];
+    // 🔹 Final score
+    const score = Math.round(base + pulse);
+
+    // 🔹 Random keywords (simulate trends)
+    const keywords = Array.from({ length: 3 }, () =>
+      keywordPool[Math.floor(Math.random() * keywordPool.length)]
+    );
+
+    return {
+      country,
+      score,
+      keywords
+    };
+  });
+
+  // 🔥 Sort globally
+  const sorted = results.sort((a, b) => b.score - a.score);
+
+  res.json(sorted);
+});
 
     const keywords = ["AI", "ChatGPT", "OpenAI", "Machine Learning"];
 
