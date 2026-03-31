@@ -10,9 +10,7 @@ app.get("/", (req, res) => {
 });
 
 // ✅ HYBRID ENGINE
-app.get("/trends", (req, res) => {
-  try {
-    const baseWeights = {
+const baseWeights = {
   "United States": 90,
   "China": 88,
   "India": 85,
@@ -58,22 +56,32 @@ function getKeywords() {
 }
 
 app.get("/trends", (req, res) => {
-  const results = Object.keys(baseWeights).map(country => {
-    
-    // momentum evolves slowly
-    momentum[country] += (Math.random() * 4 - 2);
+  try {
+    const results = Object.keys(baseWeights).map(country => {
+      
+      momentum[country] += (Math.random() * 4 - 2);
 
-    const score =
-      baseWeights[country] +
-      momentum[country] +
-      Math.random() * 5;
+      const score =
+        baseWeights[country] +
+        momentum[country] +
+        Math.random() * 5;
 
-    return {
-      country,
-      score: Math.round(score),
-      keywords: getKeywords()
-    };
-  });
+      return {
+        country,
+        score: Math.round(score),
+        keywords: getKeywords()
+      };
+    });
+
+    const sorted = results.sort((a, b) => b.score - a.score);
+
+    res.json(sorted);
+
+  } catch (err) {
+    console.error("🔥 ERROR:", err);
+    res.status(500).json({ error: "Failed to generate trends" });
+  }
+});
 
   const sorted = results.sort((a, b) => b.score - a.score);
 
