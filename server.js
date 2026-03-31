@@ -56,50 +56,35 @@ function getKeywords() {
   return pool.sort(() => 0.5 - Math.random()).slice(0, 3);
 }
 
-// 🚨 SPIKE SYSTEM (CORRECT PLACE)
-let spikeCountry = null;
-let spikeTimer = 0;
-
-function getSpike(country) {
-  if (spikeTimer <= 0 && Math.random() < 0.15) {
-    const countries = Object.keys(baseWeights);
-    spikeCountry = countries[Math.floor(Math.random() * countries.length)];
-    spikeTimer = 5;
-
-    console.log("🚨 SPIKE IN:", spikeCountry);
-  }
-
-  if (country === spikeCountry) {
-    spikeTimer--;
-    return 15 + Math.random() * 10;
-  }
-
-  return 0;
-}
-
-// 🚀 MAIN ENDPOINT
+// 🚀 MAIN ENDPOINT (CLEAN + SAFE SPIKES)
 app.get("/trends", (req, res) => {
-  res.json([
-    { country: "Test", score: 100, keywords: ["OK"] }
-  ]);
-});
-    const results = Object.keys(baseWeights).map(country => {
+  try {
+    const results = [];
+
+    for (const country of Object.keys(baseWeights)) {
 
       // smooth movement
       momentum[country] += (Math.random() * 4 - 2);
+
+      // 🔥 SAFE SPIKE (no global state)
+      let spike = 0;
+      if (Math.random() < 0.1) {
+        spike = 15 + Math.random() * 10;
+        console.log("🚨 SPIKE EVENT in:", country);
+      }
 
       const score =
         baseWeights[country] +
         momentum[country] +
         Math.random() * 5 +
-        getSpike(country);
+        spike;
 
-      return {
+      results.push({
         country,
         score: Math.round(score),
         keywords: getKeywords()
-      };
-    });
+      });
+    }
 
     const sorted = results.sort((a, b) => b.score - a.score);
 
