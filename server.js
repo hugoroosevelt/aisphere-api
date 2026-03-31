@@ -50,6 +50,28 @@ Object.keys(baseWeights).forEach(c => {
 
 // 🔥 keyword generator
 function getKeywords() {
+  // 🚨 SPIKE SYSTEM
+let spikeCountry = null;
+let spikeTimer = 0;
+
+function getSpike(country) {
+  // trigger new spike randomly
+  if (spikeTimer <= 0 && Math.random() < 0.15) {
+    const countries = Object.keys(baseWeights);
+    spikeCountry = countries[Math.floor(Math.random() * countries.length)];
+    spikeTimer = 5; // lasts ~5 cycles
+
+    console.log("🚨 SPIKE IN:", spikeCountry);
+  }
+
+  // apply spike
+  if (country === spikeCountry) {
+    spikeTimer--;
+    return 15 + Math.random() * 10; // strong boost
+  }
+
+  return 0;
+}
   const pool = [
     "ChatGPT","OpenAI","Grok","Perplexity",
     "DeepSeek","Agents","LLMs","Automation","AI"
@@ -66,9 +88,10 @@ app.get("/trends", (req, res) => {
       momentum[country] += (Math.random() * 4 - 2);
 
       const score =
-        baseWeights[country] +
-        momentum[country] +
-        Math.random() * 5;
+  baseWeights[country] +
+  momentum[country] +
+  Math.random() * 5 +
+  getSpike(country);
 
       return {
         country,
