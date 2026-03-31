@@ -65,6 +65,7 @@ app.get("/trends", (req, res) => {
         baseWeights[country] +
         momentum[country] +
         Math.random() * 5;
+        
 
       return {
         country,
