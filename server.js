@@ -47,6 +47,10 @@ Object.keys(baseWeights).forEach(c => {
   momentum[c] = 0;
 });
 
+// 📈 HISTORY STORAGE
+let historyStore = {};
+const MAX_HISTORY = 10;
+
 // 🔥 keyword generator
 function getKeywords() {
   const pool = [
@@ -56,7 +60,7 @@ function getKeywords() {
   return pool.sort(() => 0.5 - Math.random()).slice(0, 3);
 }
 
-// 🚀 MAIN ENDPOINT (CLEAN + SAFE SPIKES)
+// 🚀 MAIN ENDPOINT (WITH HISTORY + SPIKES)
 app.get("/trends", (req, res) => {
   try {
     const results = [];
@@ -66,7 +70,7 @@ app.get("/trends", (req, res) => {
       // smooth movement
       momentum[country] += (Math.random() * 4 - 2);
 
-      // 🔥 SAFE SPIKE (no global state)
+      // 🔥 spike
       let spike = 0;
       if (Math.random() < 0.1) {
         spike = 15 + Math.random() * 10;
@@ -79,16 +83,32 @@ app.get("/trends", (req, res) => {
         Math.random() * 5 +
         spike;
 
+      const finalScore = Math.round(score);
+
+      // 📊 STORE HISTORY
+      if (!historyStore[country]) {
+        historyStore[country] = [];
+      }
+
+      historyStore[country].push(finalScore);
+
+      if (historyStore[country].length > MAX_HISTORY) {
+        historyStore[country].shift();
+      }
+
       results.push({
         country,
-        score: Math.round(score),
+        score: finalScore,
         keywords: getKeywords()
       });
     }
 
     const sorted = results.sort((a, b) => b.score - a.score);
 
-    res.json(sorted);
+    res.json({
+      current: sorted,
+      history: historyStore
+    });
 
   } catch (err) {
     console.error("🔥 SERVER ERROR:", err);
