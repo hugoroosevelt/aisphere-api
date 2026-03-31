@@ -4,12 +4,12 @@ import cors from "cors";
 const app = express();
 app.use(cors());
 
-// ✅ ROOT TEST
+// ✅ Health check
 app.get("/", (req, res) => {
-  res.send("✅ Hybrid AI Pulse API Running");
+  res.send("🔥 AI SPHERE API RUNNING 🔥");
 });
 
-// ✅ HYBRID ENGINE
+// 🌍 BASE MODEL
 const baseWeights = {
   "United States": 90,
   "China": 88,
@@ -41,12 +41,14 @@ const baseWeights = {
   "Singapore": 83
 };
 
+// 🔄 momentum memory
 let momentum = {};
 
 Object.keys(baseWeights).forEach(c => {
   momentum[c] = 0;
 });
 
+// 🔥 keyword generator
 function getKeywords() {
   const pool = [
     "ChatGPT","OpenAI","Grok","Perplexity",
@@ -55,17 +57,18 @@ function getKeywords() {
   return pool.sort(() => 0.5 - Math.random()).slice(0, 3);
 }
 
+// 🚀 MAIN ENDPOINT
 app.get("/trends", (req, res) => {
   try {
     const results = Object.keys(baseWeights).map(country => {
-      
+
+      // smooth movement
       momentum[country] += (Math.random() * 4 - 2);
 
       const score =
         baseWeights[country] +
         momentum[country] +
         Math.random() * 5;
-        
 
       return {
         country,
@@ -79,29 +82,12 @@ app.get("/trends", (req, res) => {
     res.json(sorted);
 
   } catch (err) {
-    console.error("🔥 ERROR:", err);
+    console.error("🔥 SERVER ERROR:", err);
     res.status(500).json({ error: "Failed to generate trends" });
   }
 });
 
-  const sorted = results.sort((a, b) => b.score - a.score);
-
-  res.json(sorted);
-});
-
-    const sorted = results.sort((a, b) => b.score - a.score);
-
-    res.json(sorted);
-
-  } catch (err) {
-    console.error("SERVER ERROR:", err);
-    res.status(500).json({ error: "Failed to generate trends" });
-  }
-});
-
-// ✅ PORT (IMPORTANT FOR RENDER)
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+// 🟢 START SERVER
+app.listen(3001, () => {
+  console.log("🚀 Server running on port 3001");
 });
