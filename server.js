@@ -79,7 +79,10 @@ function getSpike(country) {
 
 // 🚀 MAIN ENDPOINT
 app.get("/trends", (req, res) => {
-  try {
+  res.json([
+    { country: "Test", score: 100, keywords: ["OK"] }
+  ]);
+});
     const results = Object.keys(baseWeights).map(country => {
 
       // smooth movement
